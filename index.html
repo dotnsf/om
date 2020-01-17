@@ -51,7 +51,6 @@ function ClickRequestDeviceSensor(){
     if( response === 'granted' ){
       window.addEventListener( "deviceorientation", deviceOrientation );
       $('#sensorrequest').css( 'display', 'none' );
-      $('#demoMap').css( 'display', 'block' );
       $('#me').css( 'display', 'block' );
     }
   }).catch( function( e ){
@@ -86,7 +85,6 @@ function activateDeviceEvent(){
 	if( window.DeviceOrientationEvent ){
     if( window.DeviceOrientationEvent.requestPermission && typeof window.DeviceOrientationEvent.requestPermission === 'function' ){
       //. for iOS13
-      $('#demoMap').css( 'display', 'none' );
       $('#me').css( 'display', 'none' );
       var banner = '<div id="sensorrequest" onclick="ClickRequestDeviceSensor();" style="z-index:1; position:absolute; width:100%; background-color:#000; color:#fff;><p style="padding:10px;">センサーの有効化</p></div>';
       $('body').prepend( banner );

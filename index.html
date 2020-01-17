@@ -12,43 +12,65 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-<meta name="apple-mobile-web-app-title" content="Year Clock"/>
+<meta name="apple-mobile-web-app-title" content="Rotate Map"/>
+
+<!-- // OGP tags -->
+<meta property="og:title" content="Rotate Map"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://dotnsf.github.io/om/"/>
+<meta property="og:image" content="https://dotnsf.github.io/om/icon.png"/>
+<meta property="og:site_name" content="Rotate Map"/>
+<meta property="og:description" content="Rotate Map : DeviceOrientationEvent enabled map."/>
+<!-- OGP tags // -->
+
+<!-- // Twitter Card -->
+<meta property="twitter:card" content="summary"/>
+<meta property="twitter:site" content="@dotnsf"/>
+<meta property="twitter:creator" content="@dotnsf"/>
+<meta property="twitter:url" content="https://dotnsf.github.io/om/"/>
+<meta property="twitter:image" content="https://dotnsf.github.io/om/icon.png"/>
+<meta property="twitter:title" content="Rotate Map"/>
+<meta property="twitter:description" content="Rotate Map : DeviceOrientationEvent enabled map."/>
+<!-- Twitter Card // -->
 
 <title>Rotate Map</title>
 <script>
-//. 鈴鹿サーキットの緯度経度（初期中心位置）
-var lat = 34.8431714;
-var lng = 136.5404776;
+//. 初期中心位置
+var lat = 35.681377778;
+var lng = 139.76736389;
 
 //. 初期ズームレベルと初期角度
-var zoomlevel = 19;  //. Max:19
+var zoomlevel = 18;
 var deg = 0;
-var speed = 10;
 
 var map = null;
 
+function ClickRequestDeviceSensor(){
+  //. ユーザーに「許可」を明示させる必要がある
+  DeviceOrientationEvent.requestPermission().then( function( response ){
+    if( response === 'granted' ){
+      window.addEventListener( "deviceorientation", deviceOrientation );
+      $('#sensorrequest').css( 'display', 'none' );
+      $('#demoMap').css( 'display', 'block' );
+      $('#me').css( 'display', 'block' );
+    }
+  }).catch( function( e ){
+    console.log( e );
+  });
+
+  /*
+  DeviceMotionEvent.requestPermission().then( function( response ){
+    if( response === 'granted' ){
+      window.addEventListener( "devicemotion", deviceMotion );
+    }
+  }).catch( function( e ){
+    console.log( e );
+  });
+  */
+}
+
 $(function(){
   activateDeviceEvent();
-
-  //. keyboard
-  document.body.onkeydown = function( e ){
-    var keys = {
-      37: 'left',
-      38: 'up',
-      39: 'right',
-      40: 'down'
-    };
-
-    if( typeof keys[e.keyCode] != 'undefined' ){
-      switch( keys[e.keyCode] ){
-      case 'up':
-        go();
-        break;
-      default:
-        break;
-      }
-    }
-  };
 
   //. 初期位置を中心とした地図を OpenStreetMap データで表示
   map = L.map('demoMap', { dragging: false, zoomControl: false, minZoom: zoomlevel, maxZoom: zoomlevel }).setView( [ lat, lng ], zoomlevel );
@@ -58,17 +80,19 @@ $(function(){
       maxZoom: zoomlevel
     }
   ).addTo( map );
-
-  //setInterval( rotateMap, 1000 );
 });
 
 function activateDeviceEvent(){
 	if( window.DeviceOrientationEvent ){
+    if( window.DeviceOrientationEvent.requestPermission && typeof window.DeviceOrientationEvent.requestPermission === 'function' ){
       //. for iOS13
-      if( window.DeviceOrientationEvent.requestPermission && typeof window.DeviceOrientationEvent.requestPermission === 'function' ){
-        window.DeviceOrientationEvent.requestPermission();
-      }
-	    window.addEventListener( "deviceorientation", deviceOrientation );
+      $('#demoMap').css( 'display', 'none' );
+      $('#me').css( 'display', 'none' );
+      var banner = '<div id="sensorrequest" onclick="ClickRequestDeviceSensor();" style="z-index:1; position:absolute; width:100%; background-color:#000; color:#fff;><p style="padding:10px;">センサーの有効化</p></div>';
+      $('body').prepend( banner );
+    }else{
+	     window.addEventListener( "deviceorientation", deviceOrientation );
+    }
 	}
 }
 
@@ -89,13 +113,6 @@ function rotateMap( tiltLR ){
   $('#demoMap').css( 'transform', 'rotate(-'+deg+'deg)' );
   $('#me').html( Math.floor( deg ) );
 }
-
-function go(){
-  var z = deg * Math.PI / 360;
-  lat += 0.0001 * Math.sin( z );
-  lng += 0.0001 * Math.cos( z );
-  map.panTo( new L.LatLng( lat, lng ) );
-}
 </script>
 <style>
 html, body {
@@ -104,14 +121,15 @@ html, body {
 	padding: 0px;
 	margin: 0px;
 }
+/* スクロールバー無効処理 */
 body {
   overflow-x: scroll;
   overflow-y: scroll;
-  -ms-overflow-style: none;  /* IE, Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;  /* IE, Edge用 */
+  scrollbar-width: none;     /* Firefox用 */
 }
 body::-webkit-scrollbar {
-  display: none;             /* Chrome, Safari */
+  display: none;             /* Chrome, Safari用 */
 }
 #demoMap {
   position: fixed;
@@ -133,7 +151,6 @@ body::-webkit-scrollbar {
 <body>
   <div id="demoMap"></div>
   <div id="me">
-    <!-- <img src="./car.png" width="60px"/> -->
   </div>
 </body>
 </html>

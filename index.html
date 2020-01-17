@@ -88,7 +88,7 @@ function rotateMap( tiltLR ){
     deg = tiltLR;
   }
   $('#demoMap').css( 'transform', 'rotate(-'+deg+'deg)' );
-  $('#me').html( deg );
+  $('#me').html( Math.floor( deg ) );
 }
 
 function go(){
@@ -116,7 +116,7 @@ html, body, #wrapper {
   z-index: 2;
   position: absolute;
   color: #ff0000;
-  font-size: 36pt;
+  font-size: 24pt;
   left: 50%;
   top: 50%;
 }
